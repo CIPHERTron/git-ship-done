@@ -1,5 +1,6 @@
 import { connect, StringCodec, JetStreamClient, consumerOpts } from 'nats';
 import { Octokit } from '@octokit/rest'
+import fetch from 'node-fetch';
 import * as dotenv from 'dotenv'
 
 dotenv.config();
@@ -10,6 +11,9 @@ const REPO_NAME = process.env.REPO_NAME;
 
 const octokit = new Octokit({
     auth: GITHUB_TOKEN,
+    request: {
+        fetch
+    }
 });
 
 const createGithubIssue = async (title: string, body: string) => {
@@ -34,17 +38,25 @@ export const startQueueService = async () => {
     const sc = StringCodec();
 
     const opts = consumerOpts();
-    opts.ackExplicit();
+    opts.manualAck()
     opts.deliverTo('todo_create_queue');
+    opts.deliverNew();
+    opts.ackExplicit();
 
     const sub = await jetstream.subscribe('todo.create', opts);
     console.log('Listening for todo.create messages...')
 
     for await (const m of sub) {
-        const todo = JSON.parse(sc.decode(m.data));
-        await createGithubIssue(todo.title, todo.description);
-        m.ack();
+        try {
+            const todo = JSON.parse(sc.decode(m.data));
+            console.log('Processing todo:', todo);
+            await createGithubIssue(todo.title, todo.description);
+            m.ack();
+        } catch (error) {
+            console.error('Error processing message:', error);
+        }
     }
+
 };
 
 startQueueService().catch((err) => {

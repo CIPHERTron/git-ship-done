@@ -1,6 +1,6 @@
 import { connect, StringCodec, JetStreamClient, consumerOpts } from 'nats';
 import { Octokit } from '@octokit/rest'
-import dotenv from 'dotenv'
+import * as dotenv from 'dotenv'
 
 dotenv.config();
 

@@ -13,16 +13,22 @@ export const createTodoController = (prisma: PrismaClient, jetStreamClient: JetS
     return async (req: FastifyRequest<CreateTodoRequest>, reply: FastifyReply) => {
         const { title, description } = req.body;
 
-        const todo = await prisma.todo.create({
-            data: {
-                title,
-                description
-            }
-        });
-
-        const sc = StringCodec();
-        await jetStreamClient.publish('todo.create', sc.encode(JSON.stringify(todo)));
-
-        reply.send(todo)
-    }
+        try {
+            const todo = await prisma.todo.create({
+                data: {
+                    title,
+                    description
+                }
+            });
+    
+            // Publish to-do creation event to jetstream
+            const sc = StringCodec();
+            await jetStreamClient.publish('todo.create', sc.encode(JSON.stringify(todo)));
+    
+            reply.send(todo)
+        } catch (error) {
+            console.log("Error creating todo:", error);
+            reply.status(500).send({ error: "Internal Server Error while pushing todo to DB" });
+        }
+    };
 }

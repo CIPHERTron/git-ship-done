@@ -28,7 +28,7 @@ const createGithubIssue = async (title: string, body: string) => {
 };
 
 export const startQueueService = async () => {
-    const connection = await connect({ servers: 'nats://localhost:4222' });
+    const connection = await connect({ servers: '127.0.0.1:4222' });
     const jetstream = connection.jetstream();
 
     const sc = StringCodec();

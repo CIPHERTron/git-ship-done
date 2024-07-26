@@ -92,7 +92,3 @@ export const startQueueService = async () => {
     }
 
 };
-
-startQueueService().catch((err) => {
-    console.error('Error in starting Queue Service:', err)
-})

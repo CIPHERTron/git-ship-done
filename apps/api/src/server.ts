@@ -6,7 +6,7 @@ import { createTodoController } from './controllers/createTodo.ts';
 
 dotenv.config();
 
-async function main() {
+export const startServer = async () => {
     const prisma = new PrismaClient();
     const fastify = Fastify({logger: true});
 
@@ -25,6 +25,4 @@ async function main() {
         fastify.log.error(error);
         process.exit(1);
     }
-}
-
-main();
+};

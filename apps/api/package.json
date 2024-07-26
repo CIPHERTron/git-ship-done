@@ -5,10 +5,10 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "dev": "nodemon --exec node --loader ts-node/esm src/server.ts",
-    "nats": "nats-server",
-    "start": "concurrently --kill-others \"yarn nats\" \"yarn start\"",
-    "queue": "nodemon --exec node --loader ts-node/esm src/queueService.ts"
+    "dev": "nodemon --exec node --loader ts-node/esm index.ts",
+    "start": "nodemon --exec node --loader ts-node/esm src/server.ts",
+    "queue": "nodemon --exec node --loader ts-node/esm src/queueService.ts",
+    "nats": "nats-server"
   },
   "dependencies": {
     "@fastify/cors": "^9.0.1",

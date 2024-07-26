@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon --exec node --loader ts-node/esm src/server.ts",
+    "nats": "nats-server",
+    "start": "concurrently --kill-others \"yarn nats\" \"yarn start\"",
     "queue": "nodemon --exec node --loader ts-node/esm src/queueService.ts"
   },
   "dependencies": {
@@ -33,6 +35,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.14.12",
+    "concurrently": "^8.2.2",
     "typescript": "^5.5.4"
   }
 }

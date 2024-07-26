@@ -1,0 +1,6 @@
+{
+    "jetstream": {
+      "store_dir": "./jetstream"
+    }
+  }
+  

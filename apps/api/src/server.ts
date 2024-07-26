@@ -1,8 +1,8 @@
 import Fastify from 'fastify';
 import {PrismaClient} from '@prisma/client'
-import dotenv from 'dotenv'
-import { initJetStream } from './jetstream';
-import { createTodoController } from './controllers/createTodo';
+import * as dotenv from 'dotenv'
+import { initJetStream } from './jetstream.ts';
+import { createTodoController } from './controllers/createTodo.ts';
 
 dotenv.config();
 

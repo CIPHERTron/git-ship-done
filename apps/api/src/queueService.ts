@@ -47,11 +47,6 @@ const processUpdateTodo = async (data: any) => {
     }
   
     await updateGithubIssue(todo.gh_issue_id, title, description);
-  
-    await prisma.todo.update({
-      where: { id },
-      data: { title, description },
-    });
 };
 
 const processDeleteTodo = async (data: any) => {
@@ -60,6 +55,8 @@ const processDeleteTodo = async (data: any) => {
     const todo = await prisma.todo.findUnique({
       where: { id },
     });
+
+    console.log(todo)
   
     if (!todo || !todo.gh_issue_id) {
       console.log(`Todo or GitHub issue not found for id: ${id}`);
@@ -67,24 +64,21 @@ const processDeleteTodo = async (data: any) => {
     }
   
     await closeGithubIssue(todo.gh_issue_id);
-  
-    await prisma.todo.delete({
-      where: { id },
-    });
 };
 
 const processMessage = async (data: string) => {
     const message = JSON.parse(data);
+    const { type, data: messageData } = message;
   
-    switch (message.type) {
+    switch (type) {
       case 'createTodo':
-        await processCreateTodo(message.data);
+        await processCreateTodo(messageData);
         break;
       case 'updateTodo':
-        await processUpdateTodo(message.data);
+        await processUpdateTodo(messageData);
         break;
       case 'deleteTodo':
-        await processDeleteTodo(message.data);
+        await processDeleteTodo(messageData);
         break;
       default:
         console.log(`Unknown message type: ${message.type}`);

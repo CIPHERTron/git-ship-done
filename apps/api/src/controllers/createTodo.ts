@@ -24,7 +24,11 @@ export const createTodoController = (prisma: PrismaClient, jetStreamClient: JetS
     
             // Publish to-do creation event to jetstream
             const sc = StringCodec();
-            await jetStreamClient.publish('replicache.create', sc.encode(JSON.stringify(todo)));
+            const message = {
+                type: 'createTodo',
+                data: todo
+            };
+            await jetStreamClient.publish('replicache.create', sc.encode(JSON.stringify(message)));
     
             reply.send(todo)
         } catch (error) {
@@ -44,6 +48,15 @@ export const updateTodoController = (prisma: PrismaClient, jetStreamClient: JetS
       }
   
       try {
+        // First, publish the update message to Replicache
+        const sc = StringCodec();
+        const message = {
+          type: 'updateTodo',
+          data: { id, title, description }
+        };
+        await jetStreamClient.publish('replicache.todo', sc.encode(JSON.stringify(message)));
+  
+        // Then, perform the database update
         const todo = await prisma.todo.update({
           where: { id },
           data: {
@@ -52,28 +65,32 @@ export const updateTodoController = (prisma: PrismaClient, jetStreamClient: JetS
           },
         });
   
-        const sc = StringCodec();
-        await jetStreamClient.publish('replicache.update', sc.encode(JSON.stringify(todo)));
-  
         reply.send(todo);
       } catch (error) {
         console.log('Error updating todo:', error);
         reply.status(500).send({ error: 'Internal Server Error while updating todo' });
       }
     };
-};
+  };
+  
 
 export const deleteTodoController = (prisma: PrismaClient, jetStreamClient: JetStreamClient) => {
     return async (req: FastifyRequest<TodoRequest>, reply: FastifyReply) => {
       const { id } = req.body;
   
       try {
+        // First, publish the delete message to Replicache
+        const sc = StringCodec();
+        const message = {
+          type: 'deleteTodo',
+          data: { id }
+        };
+        await jetStreamClient.publish('replicache.todo', sc.encode(JSON.stringify(message)));
+  
+        // Then, delete the todo from the database
         const todo = await prisma.todo.delete({
           where: { id },
         });
-  
-        const sc = StringCodec();
-        await jetStreamClient.publish('replicache.delete', sc.encode(JSON.stringify(todo)));
   
         reply.send(todo);
       } catch (error) {

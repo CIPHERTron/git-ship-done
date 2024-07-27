@@ -20,25 +20,33 @@ export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamC
 
         try {
             for (const mutation of mutations) {
+                const message = {
+                    type: mutation.name,
+                    data: mutation.args,
+                };
+
                 switch (mutation.name) {
                     case 'createTodo':
-                        await prisma.todo.create({
-                            data: mutation.args
+                        const newTodo = await prisma.todo.create({
+                            data: mutation.args,
                         });
-                        await jetStreamClient.publish('replicache.create', sc.encode(JSON.stringify(mutation.args)));
+                        message.data = newTodo
+                        await jetStreamClient.publish('replicache.create', sc.encode(JSON.stringify(message)));
                         break;
                     case 'updateTodo':
-                        await prisma.todo.update({
+                        const updatedTodo = await prisma.todo.update({
                             where: { id: mutation.args.id },
                             data: mutation.args
                         });
-                        await jetStreamClient.publish('replicache.update', sc.encode(JSON.stringify(mutation.args)));
+                        message.data = updatedTodo;
+                        await jetStreamClient.publish('replicache.update', sc.encode(JSON.stringify(message)));
                         break;
                     case 'deleteTodo':
-                        await prisma.todo.delete({
+                        const deletedTodo = await prisma.todo.delete({
                             where: { id: mutation.args.id }
                         });
-                        await jetStreamClient.publish('replicache.delete', sc.encode(JSON.stringify(mutation.args)));
+                        message.data = deletedTodo;
+                        await jetStreamClient.publish('replicache.delete', sc.encode(JSON.stringify(message)));
                         break;
                     default:
                         throw new Error(`Unknown mutation: ${mutation.name}`)

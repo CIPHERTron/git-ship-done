@@ -62,12 +62,26 @@ export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamC
 
 export const replicachePull = (prisma: PrismaClient) => {
     return async (req: FastifyRequest, reply: FastifyReply) => {
-        try {
-            const todos = await prisma.todo.findMany();
-            reply.send({ todos });
-        } catch (error) {
-            console.log('Error pulling data:', error);
-            reply.status(500).send({ error: 'Internal server error at replicachePull while fetching data' })
-        }
+      try {
+        const todos = await prisma.todo.findMany();
+        
+        // Format the response to include changes
+        const changes = todos.map(todo => ({
+          type: 'put',
+          key: `/todo/${todo.id}`,
+          value: {
+            title: todo.title,
+            description: todo.description,
+            id: todo.id,
+            gh_issue_id: todo.gh_issue_id
+          }
+        }));
+  
+        console.log(changes)
+        reply.send({ changes });
+      } catch (error) {
+        console.log('Error pulling data:', error);
+        reply.status(500).send({ error: 'Internal server error at replicachePull while fetching data' });
+      }
     }
-}
+  }

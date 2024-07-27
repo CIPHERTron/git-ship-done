@@ -10,7 +10,7 @@ generator client {
 }
 
 model Todo {
-  id          Int      @id @default(autoincrement())
+  id          String      @id
   title       String
   description String
   gh_issue_id Int?

@@ -4,7 +4,7 @@ import { JetStreamClient, StringCodec } from 'nats';
 
 interface TodoRequest {
     Body: {
-        id?: number;
+        id: string;
         title: string;
         description: string;
     }
@@ -12,11 +12,12 @@ interface TodoRequest {
 
 export const createTodoController = (prisma: PrismaClient, jetStreamClient: JetStreamClient) => {
     return async (req: FastifyRequest<TodoRequest>, reply: FastifyReply) => {
-        const { title, description } = req.body;
+        const { id, title, description } = req.body;
 
         try {
             const todo = await prisma.todo.create({
                 data: {
+                    id,
                     title,
                     description
                 }

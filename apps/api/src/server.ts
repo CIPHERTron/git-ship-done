@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import cors from '@fastify/cors'
 import {PrismaClient} from '@prisma/client'
 import * as dotenv from 'dotenv'
 import { initJetStream } from './jetstream.ts';
@@ -10,6 +11,10 @@ dotenv.config();
 export const startServer = async () => {
     const prisma = new PrismaClient();
     const fastify = Fastify({logger: true});
+
+    fastify.register(cors, {
+        origin: '*'
+    })
 
     const jetStreamClient = await initJetStream()
 

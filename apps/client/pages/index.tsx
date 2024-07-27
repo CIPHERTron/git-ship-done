@@ -1,9 +1,9 @@
-import type { NextPage } from 'next'
+import { TodoList } from "~/components/TodoList";
 
-const Home: NextPage = () => {
+export default function Homepage() {
   return (
-    <div>GIT SHIP DONE</div>
-  )
+    <div className="w-70 flex justify-center items-center h-screen">
+      <TodoList />
+    </div>
+  );
 }
-
-export default Home

@@ -2,7 +2,8 @@ import Fastify from 'fastify';
 import {PrismaClient} from '@prisma/client'
 import * as dotenv from 'dotenv'
 import { initJetStream } from './jetstream.ts';
-import { createTodoController } from './controllers/createTodo.ts';
+import { createTodoController, updateTodoController, deleteTodoController } from './controllers/createTodo.ts';
+import { replicachePull, replicachePush } from './controllers/replicacheController.ts'
 
 dotenv.config();
 
@@ -17,6 +18,12 @@ export const startServer = async () => {
     });
 
     fastify.post('/create-todo', createTodoController(prisma, jetStreamClient));
+    fastify.post('/update-todo', updateTodoController(prisma, jetStreamClient));
+    fastify.post('/delete-todo', deleteTodoController(prisma, jetStreamClient));
+
+    // Replicache endpoints
+    fastify.post('/replicache-push', replicachePush(prisma, jetStreamClient));
+    fastify.post('/replicache-pull', replicachePull(prisma));
 
     try {
         await fastify.listen({ port: 8888, host: '0.0.0.0' });

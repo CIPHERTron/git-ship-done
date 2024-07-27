@@ -27,8 +27,8 @@ export const startServer = async () => {
     fastify.post('/delete-todo', deleteTodoController(prisma, jetStreamClient));
 
     // Replicache endpoints
-    fastify.post('/replicache-push', replicachePush(prisma, jetStreamClient));
-    fastify.post('/replicache-pull', replicachePull(prisma));
+    fastify.post('/replicache/push', replicachePush(prisma, jetStreamClient));
+    fastify.post('/replicache/pull', replicachePull(prisma));
 
     try {
         await fastify.listen({ port: 8888, host: '0.0.0.0' });

@@ -102,7 +102,7 @@ export const startQueueService = async () => {
     opts.manualAck();
     opts.deliverNew();
     opts.ackExplicit();
-    opts.deliverTo('todo_create_queue');
+    opts.deliverTo('todo_queue');
   
     const sub = await jetstream.subscribe('replicache.*', opts);
     console.log('Listening for replicache messages...');

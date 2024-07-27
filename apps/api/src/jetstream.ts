@@ -5,7 +5,7 @@ export const initJetStream = async () => {
     const jsm = await connection.jetstreamManager();
     const jetstream = connection.jetstream();
 
-    await jsm.streams.add({ name: 'TODO_STREAM', subjects: ['todo.create'] });
+    await jsm.streams.add({ name: 'TODO_STREAM', subjects: ['replicache.*'] });
 
     return jetstream;
 }

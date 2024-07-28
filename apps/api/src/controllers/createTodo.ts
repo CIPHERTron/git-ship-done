@@ -99,4 +99,16 @@ export const deleteTodoController = (prisma: PrismaClient, jetStreamClient: JetS
         reply.status(500).send({ error: 'Internal Server Error while deleting todo' });
       }
     };
-  };
+};
+
+export const getAllTodosController = (prisma: PrismaClient) => {
+  return async (req: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const todos = await prisma.todo.findMany();
+      reply.send({ todos });
+    } catch (error) {
+      console.log('Error pulling data:', error);
+      reply.status(500).send({ error: 'Internal server error at replicachePull while fetching data' });
+    }
+  }
+}

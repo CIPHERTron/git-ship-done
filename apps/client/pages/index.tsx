@@ -1,9 +1,12 @@
-import { TodoList } from "~/components/TodoList";
+import React from 'react';
+import TodoList from '~/components/Todo';
 
-export default function Homepage() {
+const App: React.FC = () => {
   return (
-    <div className="w-70 flex justify-center items-center h-screen">
+    <div className="App">
       <TodoList />
     </div>
   );
-}
+};
+
+export default App;

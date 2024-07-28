@@ -1,6 +1,7 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { PrismaClient } from '@prisma/client';
 import { JetStreamClient, StringCodec } from 'nats';
+import { sendPoke } from '../push.ts';
 
 interface ReplicachePushRequest {
     Body: {
@@ -20,58 +21,63 @@ interface ReplicachePullRequest {
 }
 
 export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamClient) => {
-    return async (req: FastifyRequest<ReplicachePushRequest>, reply: FastifyReply) => {
-        const { mutations } = req.body;
+  return async (req: FastifyRequest<ReplicachePushRequest>, reply: FastifyReply) => {
+      const { mutations } = req.body;
+      const sc = StringCodec();
 
-        const sc = StringCodec();
+      try {
+          // Start a transaction
+          await prisma.$transaction(async (tx) => {
+              for (const mutation of mutations) {
+                  const message = {
+                      type: mutation.name,
+                      data: mutation.args,
+                  };
 
-        try {
+                  switch (mutation.name) {
+                      case 'createTodo':
+                          const checkTodo = await tx.todo.findUnique({
+                              where: { id: mutation.args.id }
+                          });
+                          if (!checkTodo) {
+                              const newTodo = await tx.todo.create({
+                                  data: mutation.args,
+                              });
+                              message.data = newTodo;
+                              await jetStreamClient.publish('replicache.create', sc.encode(JSON.stringify(message)));
+                          }
+                          break;
+                      case 'updateTodo':
+                          const updatedTodo = await tx.todo.update({
+                              where: { id: mutation.args.id },
+                              data: mutation.args
+                          });
+                          message.data = updatedTodo;
+                          await jetStreamClient.publish('replicache.update', sc.encode(JSON.stringify(message)));
+                          break;
+                      case 'deleteTodo':
+                          const deletedTodo = await tx.todo.delete({
+                              where: { id: mutation.args.id }
+                          });
+                          message.data = deletedTodo;
+                          await jetStreamClient.publish('replicache.delete', sc.encode(JSON.stringify(message)));
+                          break;
+                      default:
+                          throw new Error(`Unknown mutation: ${mutation.name}`);
+                  }
+              }
+          });
 
-            for (const mutation of mutations) {
-                const message = {
-                    type: mutation.name,
-                    data: mutation.args,
-                };
+          reply.send({ success: true });
 
-                switch (mutation.name) {
-                    case 'createTodo':
-                        const checkTodo = await prisma.todo.findUnique({
-                            where: {id: mutation.args.id}
-                        })
-                        if(!checkTodo) {
-                            const newTodo = await prisma.todo.create({
-                                data: mutation.args,
-                            });
-                            message.data = newTodo;
-                            await jetStreamClient.publish('replicache.create', sc.encode(JSON.stringify(message)));
-                        }
-                        break;
-                    case 'updateTodo':
-                        const updatedTodo = await prisma.todo.update({
-                            where: { id: mutation.args.id },
-                            data: mutation.args
-                        });
-                        message.data = updatedTodo;
-                        await jetStreamClient.publish('replicache.update', sc.encode(JSON.stringify(message)));
-                        break;
-                    case 'deleteTodo':
-                        const deletedTodo = await prisma.todo.delete({
-                            where: { id: mutation.args.id }
-                        });
-                        message.data = deletedTodo;
-                        await jetStreamClient.publish('replicache.delete', sc.encode(JSON.stringify(message)));
-                        break;
-                    default:
-                        throw new Error(`Unknown mutation: ${mutation.name}`)
-                }
-            }
-            reply.send({success: true})
-        } catch (error) {
-            console.log('Error processing mutations:', error);
-            reply.status(500).send({ error: 'Internal Server Error while processing mutations' })
-        }
-    }
-}
+          // Send a poke notification
+          await sendPoke();
+      } catch (error) {
+          console.log('Error processing mutations:', error);
+          reply.status(500).send({ error: 'Internal Server Error while processing mutations' });
+      }
+  };
+};
 
 
 export const replicachePull = (prisma: PrismaClient) => {

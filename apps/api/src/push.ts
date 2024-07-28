@@ -1,19 +1,11 @@
 import Pusher from 'pusher';
 
 export const sendPoke = async () => {
-  if (
-    !process.env.REPLICHAT_PUSHER_APP_ID ||
-    !process.env.REPLICHAT_PUSHER_KEY ||
-    !process.env.REPLICHAT_PUSHER_SECRET ||
-    !process.env.REPLICHAT_PUSHER_CLUSTER
-  ) {
-    throw new Error('Missing Pusher environment variables');
-  }
   const pusher = new Pusher({
-    appId: process.env.REPLICHAT_PUSHER_APP_ID,
-    key: process.env.REPLICHAT_PUSHER_KEY,
-    secret: process.env.REPLICHAT_PUSHER_SECRET,
-    cluster: process.env.REPLICHAT_PUSHER_CLUSTER,
+    appId: '1841076',
+    key: 'd80d9194733592ca3b4e',
+    secret: '809c386d2d8b80318560',
+    cluster: 'ap2',
     useTLS: true,
   });
   const t0 = Date.now();

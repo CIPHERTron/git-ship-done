@@ -16,7 +16,7 @@ export function useReplicache() {
   useEffect(() => {
     console.log('updating replicache');
     const r = new Replicache({
-      name: 'git-ship-done',
+      name: 'todos',
       licenseKey: licenseKey,
       pushURL: 'http://localhost:8888/replicache/push',
       pullURL: 'http://localhost:8888/replicache/pull',
@@ -37,7 +37,7 @@ export function useReplicache() {
     };
   }, []);
 
-  function listen(rep: Replicache) {
+  const listen = (rep: Replicache) => {
     console.log('listening');
     // Listen for pokes, and pull whenever we get one.
     Pusher.logToConsole = true;

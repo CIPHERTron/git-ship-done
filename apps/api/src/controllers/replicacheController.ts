@@ -65,23 +65,17 @@ export const replicachePull = (prisma: PrismaClient) => {
       try {
         const todos = await prisma.todo.findMany();
         
-        // Format the response to include changes
         const changes = todos.map(todo => ({
-          type: 'put',
-          key: `/todo/${todo.id}`,
-          value: {
-            title: todo.title,
-            description: todo.description,
-            id: todo.id,
-            gh_issue_id: todo.gh_issue_id
-          }
+            op: 'put',
+            key: `/todo/${todo.id}`,
+            value: todo,
         }));
   
-        console.log(changes)
-        reply.send({ changes });
+        reply.send({ lastMutationIDChanges: {}, cookie: 42, patch: changes });
       } catch (error) {
         console.log('Error pulling data:', error);
         reply.status(500).send({ error: 'Internal server error at replicachePull while fetching data' });
       }
-    }
-  }
+    };
+};
+  

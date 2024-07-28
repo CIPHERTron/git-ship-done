@@ -12,6 +12,12 @@ interface ReplicachePushRequest {
       }>;
     };
 }
+interface ReplicachePullRequest {
+    Body: {
+        clientGroupID: string;
+        cookie?: number;
+    };
+}
 
 export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamClient) => {
     return async (req: FastifyRequest<ReplicachePushRequest>, reply: FastifyReply) => {
@@ -67,23 +73,64 @@ export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamC
     }
 }
 
+
 export const replicachePull = (prisma: PrismaClient) => {
-    return async (req: FastifyRequest, reply: FastifyReply) => {
-      try {
-        const todos = await prisma.todo.findMany();
-        console.log(todos)
-        
-        const changes = todos.map(todo => ({
+  return async (req: FastifyRequest<ReplicachePullRequest>, reply: FastifyReply) => {
+    const pull = req.body;
+    const clientGroupID = pull.clientGroupID;
+    const fromVersion = pull.cookie ?? 0;
+
+    try {
+      const todos = await prisma.todo.findMany();
+
+      // Create patch operations
+      const changes = todos.map(todo => {
+        if (todo.deleted) {
+          return {
+            op: 'del',
+            key: `/todo/${todo.id}`,
+          };
+        } else {
+          return {
             op: 'put',
             key: `/todo/${todo.id}`,
-            value: todo,
-        }));
-  
-        reply.send({ lastMutationIDChanges: {}, cookie: Date.now(), patch: changes });
-      } catch (error) {
-        console.log('Error pulling data:', error);
-        reply.status(500).send({ error: 'Internal server error at replicachePull while fetching data' });
-      }
-    };
+            value: {
+              id: todo.id,
+              title: todo.title,
+              description: todo.description,
+              done: todo.done,
+              gh_issue_id: todo.gh_issue_id,
+              createdAt: todo.createdAt,
+            },
+          };
+        }
+      });
+
+      // Fetch the last mutation ID for the client group
+      const clientGroup = await prisma.replicacheClient.findUnique({
+        where: { id: clientGroupID },
+      });
+
+      const lastMutationID = clientGroup?.lastMutationID ?? 0;
+
+      // Update the last mutation ID for the client group
+      await prisma.replicacheClient.upsert({
+        where: { id: clientGroupID },
+        update: { lastMutationID },
+        create: { id: `${clientGroupID}-${Date.now()}`, clientGroupID, lastMutationID, version: Date.now() },
+      });
+
+      // Construct the pull response
+      reply.send({
+        lastMutationIDChanges: { [clientGroupID]: lastMutationID },
+        cookie: Date.now(),
+        patch: changes,
+      });
+    } catch (error) {
+      console.log('Error pulling data:', error);
+      reply.status(500).send({ error: 'Internal server error at replicachePull while fetching data' });
+    }
+  };
 };
+
   

@@ -5,7 +5,8 @@ import { CreateTodo, UpdateTodo, DeleteTodo } from '~/lib/mutators'; // Import y
 
 export function useReplicache() {
   const [rep, setRep] = useState<Replicache<MutatorDefs> | null>(null);
-  const licenseKey = process.env.REPLICACHE_LICENSE_KEY ?? TEST_LICENSE_KEY
+  // const licenseKey = process.env.REPLICACHE_LICENSE_KEY ?? TEST_LICENSE_KEY
+  const licenseKey = 'lf672f65e150e4114839ecaeb545b3fe6'
 
   if (!licenseKey) {
     throw new Error('Missing REPLICACHE_LICENSE_KEY');

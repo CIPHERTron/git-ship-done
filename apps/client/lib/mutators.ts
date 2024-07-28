@@ -1,7 +1,7 @@
 import { WriteTransaction } from 'replicache';
 
 export const CreateTodo = async (tx: WriteTransaction, args: { id: string; title: string; description: string }) => {
-  await tx.put(`/todo/${args.id}`, { value: args });
+  await tx.put(`/todo/${args.id}`, { value: {name: 'createTodo', args} });
 };
 
 export const UpdateTodo = async (tx: WriteTransaction, args: { id: string; title: string; description: string }) => {

@@ -168,7 +168,7 @@ const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-export function TodoList() {
+export function TodoList({todos}: any) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

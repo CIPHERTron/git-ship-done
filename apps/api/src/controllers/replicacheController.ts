@@ -4,6 +4,7 @@ import { JetStreamClient, StringCodec } from 'nats';
 
 interface ReplicachePushRequest {
     Body: {
+        clientID: string,
       mutations: Array<{
         id: string;
         name: string;
@@ -19,6 +20,7 @@ export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamC
         const sc = StringCodec();
 
         try {
+
             for (const mutation of mutations) {
                 const message = {
                     type: mutation.name,
@@ -27,11 +29,16 @@ export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamC
 
                 switch (mutation.name) {
                     case 'createTodo':
-                        const newTodo = await prisma.todo.create({
-                            data: mutation.args,
-                        });
-                        message.data = newTodo
-                        await jetStreamClient.publish('replicache.create', sc.encode(JSON.stringify(message)));
+                        const checkTodo = await prisma.todo.findUnique({
+                            where: {id: mutation.args.id}
+                        })
+                        if(!checkTodo) {
+                            const newTodo = await prisma.todo.create({
+                                data: mutation.args,
+                            });
+                            message.data = newTodo;
+                            await jetStreamClient.publish('replicache.create', sc.encode(JSON.stringify(message)));
+                        }
                         break;
                     case 'updateTodo':
                         const updatedTodo = await prisma.todo.update({
@@ -64,6 +71,7 @@ export const replicachePull = (prisma: PrismaClient) => {
     return async (req: FastifyRequest, reply: FastifyReply) => {
       try {
         const todos = await prisma.todo.findMany();
+        console.log(todos)
         
         const changes = todos.map(todo => ({
             op: 'put',
@@ -71,7 +79,7 @@ export const replicachePull = (prisma: PrismaClient) => {
             value: todo,
         }));
   
-        reply.send({ lastMutationIDChanges: {}, cookie: 42, patch: changes });
+        reply.send({ lastMutationIDChanges: {}, cookie: Date.now(), patch: changes });
       } catch (error) {
         console.log('Error pulling data:', error);
         reply.status(500).send({ error: 'Internal server error at replicachePull while fetching data' });

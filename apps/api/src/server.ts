@@ -11,7 +11,7 @@ dotenv.config();
 
 export const startServer = async () => {
     const prisma = new PrismaClient();
-    const fastify = Fastify({logger: true});
+    const fastify = Fastify();
 
     await fastify.register(formbody)
 

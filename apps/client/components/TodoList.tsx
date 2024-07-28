@@ -36,6 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import { Todo } from "~/lib/todo";
 
 const data: Payment[] = [
   {
@@ -168,7 +169,11 @@ const columns: ColumnDef<Payment>[] = [
   },
 ];
 
-export function TodoList({todos}: any) {
+interface TodoListProps {
+  todos: Todo
+}
+
+export const TodoList: React.FC<TodoListProps> = ({todos}) => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

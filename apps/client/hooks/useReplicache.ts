@@ -1,6 +1,7 @@
 // hooks/useReplicache.ts
 import { useEffect, useState } from 'react';
 import { Replicache, MutatorDefs, TEST_LICENSE_KEY } from 'replicache';
+import Pusher from 'pusher-js'
 import { CreateTodo, UpdateTodo, DeleteTodo } from '~/lib/mutators'; // Import your mutators
 
 export function useReplicache() {
@@ -31,12 +32,23 @@ export function useReplicache() {
     listen(r);
 
     return () => {
-      r.close();
+      Pusher.instances.forEach(i => i.disconnect());
+      void r.close();
     };
   }, []);
 
-  const listen = (rep: Replicache) => {
-    // TODO: Listen for changes on server
+  function listen(rep: Replicache) {
+    console.log('listening');
+    // Listen for pokes, and pull whenever we get one.
+    Pusher.logToConsole = true;
+    const pusher = new Pusher("d80d9194733592ca3b4e", {
+      cluster: "ap2",
+    });
+    const channel = pusher.subscribe('default');
+    channel.bind('poke', async () => {
+      console.log('got poked');
+      await rep.pull();
+    });
   }
 
   return rep;

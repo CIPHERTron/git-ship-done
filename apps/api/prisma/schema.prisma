@@ -13,29 +13,15 @@ model Todo {
   id          String      @id
   title       String
   description String
+  done Boolean @default(false)
+  deleted Boolean @default(false)
   gh_issue_id Int?
   createdAt   DateTime @default(now())
 }
 
 model ReplicacheClient {
-  id              String @id @default(uuid())
-  lastMutationID  Int
+  id             String @id
+  clientGroupID  String
+  lastMutationID Int
+  version        BigInt
 }
-
-
-// model User {
-//   id    Int    @id @default(autoincrement())
-//   email String @unique
-//   name  String
-//   Todo  Todo[]
-// }
-
-// model Todo {
-//   id        Int      @id @default(autoincrement())
-//   title     String
-//   completed Boolean  @default(false)
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   userId    Int
-//   user      User     @relation(fields: [userId], references: [id])
-// }

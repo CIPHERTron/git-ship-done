@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useReplicache } from '../hooks/useReplicache';
 import { useSubscribe } from 'replicache-react';
 import { nanoid } from 'nanoid';
-import axios from 'axios'
 import { ReadTransaction, ReadonlyJSONValue } from 'replicache';
 
 export interface Todo {
@@ -13,7 +12,7 @@ export interface Todo {
       createdAt: string;
 }
 
-const TodoList: React.FC = () => {
+const Todo: React.FC = () => {
   const rep = useReplicache();
   // const [todos, setTodos] = useState<Todo[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -49,22 +48,6 @@ const TodoList: React.FC = () => {
 
   console.log("todos log:", todos);
 
-  // useEffect(() => {
-  //   const fetchTodos = async () => {
-  //     try {
-  //       const response = await axios.get('http://localhost:8888/get-all-todos');
-  //       setTodos(response.data.todos ?? []);
-  //     } catch (error) {
-  //       console.error('Error fetching todos:', error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchTodos();
-  // }, [renderPage]);
-
-
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -88,11 +71,13 @@ const TodoList: React.FC = () => {
 
   return (
     <div>
-      
+    {
+      todos.map((x: any) => <p>{JSON.stringify(x)}</p>)
+    }
     </div>
   );
 };
 
-export default TodoList;
+export default Todo;
 
 

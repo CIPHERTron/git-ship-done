@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Replicache, MutatorDefs, TEST_LICENSE_KEY } from "replicache";
 import Pusher from "pusher-js";
-import { CreateTodo, UpdateTodo, DeleteTodo } from "~/lib/mutators"; // Import your mutators
+import { CreateTodo, UpdateTodo, DeleteTodo, DoneTodo } from "~/lib/mutators"; // Import your mutators
 
 export function useReplicache() {
   const [rep, setRep] = useState<Replicache<MutatorDefs> | null>(null);
@@ -24,6 +24,7 @@ export function useReplicache() {
         createTodo: CreateTodo,
         updateTodo: UpdateTodo,
         deleteTodo: DeleteTodo,
+        doneTodo: DoneTodo
       },
       pullInterval: 10*1000,
       logLevel: "debug",

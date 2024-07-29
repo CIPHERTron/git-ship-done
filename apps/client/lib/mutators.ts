@@ -17,6 +17,16 @@ export const UpdateTodo = async (
   await tx.set(`/todo/${args.id}`, next);
 };
 
+export const DoneTodo = async (
+  tx: WriteTransaction,
+  args: { id: string; done: boolean }
+) => {
+  const prev = await tx.get(`/todo/${args.id}`) as any;
+
+  const next = { ...prev, done: args.done };
+  await tx.put(`/todo/${args.id}`, next);
+};
+
 export const DeleteTodo = async (
   tx: WriteTransaction,
   args: { id: string }

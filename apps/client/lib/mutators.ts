@@ -12,9 +12,6 @@ export const UpdateTodo = async (
   args: { id: string; title: string; description: string }
 ) => {
   const prev = await tx.get(`/todo/${args.id}`) as any;
-  let temp: any = {};
-
-  console.log("previous value",prev)
 
   const next = { ...prev, title: args.title, description: args.description };
   await tx.set(`/todo/${args.id}`, next);

@@ -1,5 +1,4 @@
-# Use the official Node.js 16 image as the base image
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 

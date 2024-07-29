@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./apps/client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./apps/client:/app
+      - /app/node_modules
+    command: ["yarn", "dev"]
+    depends_on:
+      - server
+      - nats
+
+  server:
+    build:
+      context: ./apps/server
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./apps/server:/usr/src/app
+      - /usr/src/app/node_modules
+    command: ["node", "dist/index.js"]
+    depends_on:
+      - nats
+
+  nats:
+    image: nats:2.9.2
+    ports:
+      - "4222:4222"
+    command: ["-js", "-p", "4222", "-m", "8222"]
+    volumes:
+      - nats-data:/data
+
+volumes:
+  nats-data:

@@ -16,7 +16,7 @@ export function useReplicache() {
   useEffect(() => {
     console.log("updating replicache");
     const r = new Replicache({
-      name: "todos",
+      name: "replicache-todo",
       licenseKey: licenseKey,
       pushURL: "http://localhost:8888/replicache/push",
       pullURL: "http://localhost:8888/replicache/pull",

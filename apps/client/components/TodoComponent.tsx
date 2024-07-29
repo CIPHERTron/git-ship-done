@@ -27,7 +27,7 @@ import {
 } from "~/components/ui/dialog";
 import { Label } from "~/components/ui/label";
 
-import { Checkbox } from "~/components/ui/checkbox";
+import {Badge} from '~/components/ui/badge'
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/components/ui/use-toast";
 import {
@@ -40,9 +40,11 @@ import { useReplicache } from "~/hooks/useReplicache";
 import { useSubscribe } from "replicache-react";
 import { nanoid } from "nanoid";
 import {
+    MutatorDefs,
   ReadTransaction,
   ReadonlyJSONObject,
   ReadonlyJSONValue,
+  Replicache,
 } from "replicache";
 import TodoDescription from "~/components/TodoDescription";
 import {
@@ -65,6 +67,7 @@ import {
   CardContent,
   CardFooter,
 } from "./ui/card";
+import { CheckedState } from "@radix-ui/react-checkbox";
 // import UpdateComponent from "./UpdateComponent";
 
 interface Todo {
@@ -88,10 +91,9 @@ export default function TodoComponent() {
   const [newTodoTitle, setNewTodoTitle] = useState<string>("");
   const [newTodoDescription, setNewTodoDescription] = useState<string>("");
   const [open, setOpen] = useState<boolean>(false);
-  const [updateOpen, setUpdateOpen] = useState<boolean>(false);
   const [updatedTitle, setUpdatedTitle] = useState<string>("");
   const [updatedDescription, setUpdatedDescription] = useState<string>("");
-  const [updatedTodoId, setUpdatedTodoId] = useState<string>("")
+
 
   function normalizeReplicacheData(
     data: (readonly [string, ReadonlyJSONValue])[]
@@ -187,9 +189,23 @@ export default function TodoComponent() {
     setUpdatedDescription("");
   };
 
+  const handleTodoDone = async (event: React.FormEvent, id: string, done: boolean) => {
+    event.preventDefault();
+
+    await rep?.mutate.doneTodo({
+      id,
+      done: !done
+    });
+
+    toast({
+      description: `Todo with id ${id} was transitioned to ${!done ? "Done" : "Open"}`,
+    });
+  };
+  
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="my-4 w-[854px] flex flex-row justify-between">
+      <div className="my-4 w-[948px] flex flex-row justify-between">
         <div className="flex flex-row gap-2">
           <Input type="text" placeholder="Filter Todos..." />
           <Select>
@@ -280,7 +296,7 @@ export default function TodoComponent() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedTodos.map(
+            {sortedTodos.length > 0 && sortedTodos.map(
               ({ id, title, description, gh_issue_id, createdAt, done }, idx) => (
                 <TableRow key={id}>
                   <TableCell>{idx + 1}</TableCell>
@@ -306,7 +322,11 @@ export default function TodoComponent() {
                     </div>
                   </TableCell>
 
-                  <TableCell>To Do</TableCell>
+                  <TableCell>
+                    <Badge variant={done ? 'outline' : 'default'}>
+                        {done ? "Done" : "Todo"}
+                    </Badge>
+                </TableCell>
 
                   {/* <TableCell className="text-center">
                   <a
@@ -360,7 +380,7 @@ export default function TodoComponent() {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    <Checkbox />
+                    <Button onClick={(e) => handleTodoDone(e, id, done)} variant="link">{done ? "Reopen Todo" : "Mark as Done"}</Button>
                   </TableCell>
                 </TableRow>
               )

@@ -64,3 +64,20 @@ export const closeGithubIssue = async (issueNumber: number) => {
       throw error;
     }
 };
+
+
+export const reopenGithubIssue = async (issueNumber: number) => {
+  try {
+    await octokit.issues.update({
+      owner: process.env.REPO_OWNER!,
+      repo: process.env.REPO_NAME!,
+      issue_number: issueNumber,
+      state: 'open',
+    });
+
+    console.log('Reopened GitHub Issue', issueNumber);
+  } catch (error) {
+    console.log('Error reopening GitHub issue: ', error);
+    throw error;
+  }
+};

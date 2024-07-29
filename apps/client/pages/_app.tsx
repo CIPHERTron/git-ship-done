@@ -2,6 +2,7 @@ import "~/styles/globals.css";
 import type { AppProps } from "next/app";
 import { ThemeProvider } from "~/components/theme-provider";
 import Navigation from "~/components/shared/Navigation";
+import { Toaster } from "~/components/ui/toaster";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
@@ -13,6 +14,7 @@ export default function App({ Component, pageProps }: AppProps) {
         disableTransitionOnChange
       >
         <Navigation />
+        <Toaster />
         <Component {...pageProps} />
       </ThemeProvider>
     </>

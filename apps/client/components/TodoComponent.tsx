@@ -27,24 +27,18 @@ import {
 } from "~/components/ui/dialog";
 import { Label } from "~/components/ui/label";
 
-import {Badge} from '~/components/ui/badge'
+import { Badge } from "~/components/ui/badge";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/components/ui/use-toast";
-import {
-  DotsHorizontalIcon,
-  PlusCircledIcon,
-  Pencil1Icon,
-} from "@radix-ui/react-icons";
+import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
 
 import { useReplicache } from "~/hooks/useReplicache";
 import { useSubscribe } from "replicache-react";
 import { nanoid } from "nanoid";
 import {
-    MutatorDefs,
   ReadTransaction,
   ReadonlyJSONObject,
   ReadonlyJSONValue,
-  Replicache,
 } from "replicache";
 import TodoDescription from "~/components/TodoDescription";
 import {
@@ -63,12 +57,9 @@ import {
   Card,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardContent,
   CardFooter,
 } from "./ui/card";
-import { CheckedState } from "@radix-ui/react-checkbox";
-// import UpdateComponent from "./UpdateComponent";
 
 interface Todo {
   id: string;
@@ -93,7 +84,6 @@ export default function TodoComponent() {
   const [open, setOpen] = useState<boolean>(false);
   const [updatedTitle, setUpdatedTitle] = useState<string>("");
   const [updatedDescription, setUpdatedDescription] = useState<string>("");
-
 
   function normalizeReplicacheData(
     data: (readonly [string, ReadonlyJSONValue])[]
@@ -138,8 +128,7 @@ export default function TodoComponent() {
 
   const sortedTodos = sortTodosByCreatedAt(todos);
 
-  console.log(sortedTodos)
-
+  console.log(sortedTodos);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -189,23 +178,38 @@ export default function TodoComponent() {
     setUpdatedDescription("");
   };
 
-  const handleTodoDone = async (event: React.FormEvent, id: string, done: boolean) => {
+  const handleTodoDone = async (
+    event: React.FormEvent,
+    id: string,
+    done: boolean
+  ) => {
     event.preventDefault();
 
     await rep?.mutate.doneTodo({
       id,
-      done: !done
+      done: !done,
     });
 
     toast({
       description: `Todo with id ${id} was transitioned to ${!done ? "Done" : "Open"}`,
     });
   };
-  
+
+  const handleDeleteTodo = async (event: React.FormEvent, id: string) => {
+    event.preventDefault();
+
+    await rep?.mutate.deleteTodo({
+      id,
+    });
+
+    toast({
+      description: `Todo with id ${id} was deleted.}`,
+    });
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="my-4 w-[948px] flex flex-row justify-between">
+      <div className="my-4 w-[1014px] flex flex-row justify-between">
         <div className="flex flex-row gap-2">
           <Input type="text" placeholder="Filter Todos..." />
           <Select>
@@ -286,105 +290,129 @@ export default function TodoComponent() {
           </TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">Sl. No.</TableHead>
               <TableHead className="w-[250px]">Task ID</TableHead>
               <TableHead className="w-[300px]">Title</TableHead>
               <TableHead className="w-[150px]">Status</TableHead>
               {/* <TableHead>GitHub</TableHead> */}
               <TableHead className="w-[50px] text-right">Edit</TableHead>
-              <TableHead className="w-[50px] text-right">Done</TableHead>
+              <TableHead className="w-[50px] text-center">Done</TableHead>
+              <TableHead className="w-[50px] text-right">Delete</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedTodos.length > 0 && sortedTodos.map(
-              ({ id, title, description, gh_issue_id, createdAt, done }, idx) => (
-                <TableRow key={id}>
-                  <TableCell>{idx + 1}</TableCell>
-                  <TableCell className="font-medium">{id}</TableCell>
+            {sortedTodos.length > 0 &&
+              sortedTodos.map(
+                (
+                  { id, title, description, gh_issue_id, createdAt, done },
+                  idx
+                ) => (
+                  <TableRow key={id}>
+                    <TableCell className="font-medium">{id}</TableCell>
 
-                  <TableCell className="text-left">
-                    <div className="flex flex-row justify-start items-center">
-                      <HoverCard>
-                        <HoverCardTrigger>
-                          <Button className="m-0 p-0" variant={"link"}>
-                            {title ? `${title.slice(0, 20)} ${title.length > 20 ? "..." : ""}` : ""}
-                          </Button>
-                        </HoverCardTrigger>
-                        <HoverCardContent>
-                          <TodoDescription
-                            title={title}
-                            description={description}
-                            gh_issue_id={gh_issue_id}
-                            createdAt={createdAt}
-                          />
-                        </HoverCardContent>
-                      </HoverCard>
-                    </div>
-                  </TableCell>
+                    <TableCell className="text-left">
+                      <div className="flex flex-row justify-start items-center">
+                        <HoverCard>
+                          <HoverCardTrigger>
+                            <Button className="m-0 p-0" variant={"link"}>
+                              {title
+                                ? `${title.slice(0, 20)} ${title.length > 20 ? "..." : ""}`
+                                : ""}
+                            </Button>
+                          </HoverCardTrigger>
+                          <HoverCardContent>
+                            <TodoDescription
+                              title={title}
+                              description={description}
+                              gh_issue_id={gh_issue_id}
+                              createdAt={createdAt}
+                            />
+                          </HoverCardContent>
+                        </HoverCard>
+                      </div>
+                    </TableCell>
 
-                  <TableCell>
-                    <Badge variant={done ? 'outline' : 'default'}>
+                    <TableCell>
+                      <Badge variant={done ? "outline" : "default"}>
                         {done ? "Done" : "Todo"}
-                    </Badge>
-                </TableCell>
+                      </Badge>
+                    </TableCell>
 
-                  {/* <TableCell className="text-center">
-                  <a
-                    target="_blank"
-                    href={`https://github.com/CIPHERTron/guestbook/issue/${gh_issue_id}`}
-                  >
-                    {gh_issue_id}
-                  </a>
-                </TableCell> */}
-
-                  <TableCell className="text-center">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline">
-                          <Pencil1Icon />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-fit">
-                        <Card className="w-[350px]">
-                          <CardHeader>
-                            <CardTitle>Edit Todo</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <form>
-                              <div className="grid w-full items-center gap-4">
-                                <div className="flex flex-col space-y-1.5">
-                                  <Label htmlFor="name">Title</Label>
-                                  <Input
-                                    id="title"
-                                    value={updatedTitle ? updatedTitle : title}
-                                    onChange={(e) => setUpdatedTitle(e.target.value)}
-                                  />
+                    <TableCell className="text-center">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline">
+                            <Pencil1Icon />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-fit">
+                          <Card className="w-[350px]">
+                            <CardHeader>
+                              <CardTitle>Edit Todo</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <form>
+                                <div className="grid w-full items-center gap-4">
+                                  <div className="flex flex-col space-y-1.5">
+                                    <Label htmlFor="name">Title</Label>
+                                    <Input
+                                      id="title"
+                                      value={
+                                        updatedTitle ? updatedTitle : title
+                                      }
+                                      onChange={(e) =>
+                                        setUpdatedTitle(e.target.value)
+                                      }
+                                    />
+                                  </div>
+                                  <div className="flex flex-col space-y-1.5">
+                                    <Label htmlFor="name">Description</Label>
+                                    <Input
+                                      id="description"
+                                      value={
+                                        updatedDescription
+                                          ? updatedDescription
+                                          : description
+                                      }
+                                      onChange={(e) =>
+                                        setUpdatedDescription(e.target.value)
+                                      }
+                                    />
+                                  </div>
                                 </div>
-                                <div className="flex flex-col space-y-1.5">
-                                  <Label htmlFor="name">Description</Label>
-                                  <Input
-                                    id="description"
-                                    value={updatedDescription ? updatedDescription : description}
-                                    onChange={(e) => setUpdatedDescription(e.target.value)}
-                                  />
-                                </div>
-                              </div>
-                            </form>
-                          </CardContent>
-                          <CardFooter className="flex justify-end">
-                            <Button onClick={(e) => handleUpdateSubmit(e, id)}>Update</Button>
-                          </CardFooter>
-                        </Card>
-                      </PopoverContent>
-                    </Popover>
-                  </TableCell>
+                              </form>
+                            </CardContent>
+                            <CardFooter className="flex justify-end">
+                              <Button
+                                onClick={(e) => handleUpdateSubmit(e, id)}
+                              >
+                                Update
+                              </Button>
+                            </CardFooter>
+                          </Card>
+                        </PopoverContent>
+                      </Popover>
+                    </TableCell>
 
-                  <TableCell className="text-center">
-                    <Button onClick={(e) => handleTodoDone(e, id, done)} variant="link">{done ? "Reopen Todo" : "Mark as Done"}</Button>
-                  </TableCell>
-                </TableRow>
-              )
-            )}
+                    <TableCell className="text-center">
+                      <Button
+                        onClick={(e) => handleTodoDone(e, id, done)}
+                        variant="link"
+                      >
+                        {done ? "Reopen Todo" : "Mark as Done"}
+                      </Button>
+                    </TableCell>
+
+                    <TableCell className="text-center">
+                      <Button
+                        onClick={(e) => handleDeleteTodo(e, id)}
+                        variant="destructive"
+                      >
+                        <TrashIcon />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
           </TableBody>
         </Table>
       </div>

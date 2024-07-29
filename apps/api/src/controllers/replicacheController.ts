@@ -56,6 +56,14 @@ export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamC
                           message.data = updatedTodo;
                           await jetStreamClient.publish('replicache.update', sc.encode(JSON.stringify(message)));
                           break;
+                      case 'doneTodo':
+                          const doneTodo = await tx.todo.update({
+                            where: { id: mutation.args.id },
+                            data: { done: mutation.args.done }
+                          });
+                          message.data = doneTodo;
+                          await jetStreamClient.publish('replicache.done', sc.encode(JSON.stringify(message)));
+                          break;
                       case 'deleteTodo':
                           const deletedTodo = await tx.todo.delete({
                               where: { id: mutation.args.id }

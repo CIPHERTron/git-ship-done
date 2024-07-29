@@ -1,6 +1,6 @@
 import { connect, StringCodec, JetStreamClient, consumerOpts } from 'nats';
 import {PrismaClient} from '@prisma/client';
-import {createGithubIssue, updateGithubIssue, closeGithubIssue} from './controllers/octokitControllers.ts'
+import {createGithubIssue, updateGithubIssue, closeGithubIssue, reopenGithubIssue} from './controllers/octokitControllers.ts'
 
 
 const prisma = new PrismaClient();
@@ -66,6 +66,25 @@ const processDeleteTodo = async (data: any) => {
     await closeGithubIssue(todo.gh_issue_id);
 };
 
+const processDoneTodo = async (data: any) => {
+  const { id, done } = data;
+
+  const todo = await prisma.todo.findUnique({
+    where: { id },
+  });
+
+  if (!todo || !todo.gh_issue_id) {
+    console.log(`Todo or GitHub issue not found for id: ${id}`);
+    return;
+  }
+
+  if (done) {
+    await closeGithubIssue(todo.gh_issue_id);
+  } else {
+    await reopenGithubIssue(todo.gh_issue_id);
+  }
+};
+
 const processMessage = async (data: string) => {
     const message = JSON.parse(data);
     const { type, data: messageData } = message;
@@ -79,6 +98,9 @@ const processMessage = async (data: string) => {
         break;
       case 'deleteTodo':
         await processDeleteTodo(messageData);
+        break;
+      case 'doneTodo':
+        await processDoneTodo(messageData);
         break;
       default:
         console.log(`Unknown message type: ${message.type}`);

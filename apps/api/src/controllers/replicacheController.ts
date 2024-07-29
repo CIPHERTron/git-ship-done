@@ -48,6 +48,7 @@ export const replicachePush = (prisma: PrismaClient, jetStreamClient: JetStreamC
                           }
                           break;
                       case 'updateTodo':
+                        console.log("mutation.args",mutation.args)
                           const updatedTodo = await tx.todo.update({
                               where: { id: mutation.args.id },
                               data: mutation.args

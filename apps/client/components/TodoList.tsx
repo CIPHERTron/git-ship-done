@@ -1,10 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  CaretSortIcon,
-  DotsHorizontalIcon,
-} from "@radix-ui/react-icons";
+import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -170,10 +167,10 @@ const columns: ColumnDef<Payment>[] = [
 ];
 
 interface TodoListProps {
-  todos: Todo
+  todos: Todo;
 }
 
-export const TodoList: React.FC<TodoListProps> = ({todos}) => {
+export const TodoList: React.FC<TodoListProps> = ({ todos }) => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -203,7 +200,6 @@ export const TodoList: React.FC<TodoListProps> = ({todos}) => {
 
   return (
     <div className="w-fit my-20">
-      
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -280,4 +276,4 @@ export const TodoList: React.FC<TodoListProps> = ({todos}) => {
       </div>
     </div>
   );
-}
+};

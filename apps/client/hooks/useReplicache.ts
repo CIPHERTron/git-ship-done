@@ -24,9 +24,9 @@ export function useReplicache() {
         createTodo: CreateTodo,
         updateTodo: UpdateTodo,
         deleteTodo: DeleteTodo,
-        doneTodo: DoneTodo
+        doneTodo: DoneTodo,
       },
-      pullInterval: 10*1000,
+      pullInterval: 10 * 1000,
       logLevel: "debug",
     });
 

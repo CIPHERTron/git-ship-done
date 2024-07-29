@@ -64,6 +64,12 @@ const processDeleteTodo = async (data: any) => {
     }
   
     await closeGithubIssue(todo.gh_issue_id);
+
+    if(todo) {
+      await prisma.todo.delete({
+          where: { id: id }
+      });
+    }
 };
 
 const processDoneTodo = async (data: any) => {

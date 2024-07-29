@@ -4,11 +4,16 @@
 
 Git Ship Done is a low latency todo application built with modern web technologies to ensure seamless real-time synchronization and efficient task management. Utilizing Replicache for real-time data sync, Fastify for a robust backend, Next.js for a dynamic frontend, and Turborepo for efficient monorepo management, this application offers a smooth and interactive user experience. Manage your tasks effortlessly with real-time updates, ensuring your to-do list is always up-to-date across all your devices.
 
-Key Features:
+## Key Features:
 
 - Real-Time Sync: Instant updates across all your devices using Replicache.
 - GitHub Issues Integration: Create and manage GitHub issues directly from the application. Each todo can be linked to a GitHub issue, allowing you to keep track of your tasks and their corresponding issues in one place.
 - Efficient Monorepo Management: Leverage Turborepo for streamlined project organization and build processes.
+
+## Architecture:
+
+![Screenshot 2024-07-29 at 10 58 22 PM](https://github.com/user-attachments/assets/540c73e5-c8ce-4117-8708-99240ad4e580)
+
 
 ## Tech Stack
 - Turborepo - monorepo tooling

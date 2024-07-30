@@ -4,7 +4,7 @@ import formbody from '@fastify/formbody'
 import {PrismaClient} from '@prisma/client'
 import * as dotenv from 'dotenv'
 import { initJetStream } from './jetstream.ts';
-import { createTodoController, updateTodoController, deleteTodoController, getAllTodosController } from './controllers/createTodo.ts';
+import { createTodoController, updateTodoController, deleteTodoController, getAllTodosController } from './controllers/todoController.ts';
 import { replicachePull, replicachePush } from './controllers/replicacheController.ts'
 
 dotenv.config();

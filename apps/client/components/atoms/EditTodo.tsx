@@ -16,7 +16,7 @@ import { Pencil1Icon } from "@radix-ui/react-icons";
 import { Label } from "~/components/ui/label";
 import { Input } from "~/components/ui/input";
 import { useToast } from "~/components/ui/use-toast";
-import { MutatorDefs, Replicache } from "replicache";
+import { type MutatorDefs, type Replicache } from "replicache";
 
 interface EditTodoProps {
   rep: Replicache<MutatorDefs> | null;

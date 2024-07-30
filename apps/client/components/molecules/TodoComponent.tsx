@@ -42,7 +42,10 @@ import {
   CardContent,
   CardFooter,
 } from "../ui/card";
+
 import CreateTodo from "../atoms/AddTodo";
+import TodoTitle from "../atoms/TodoTitle";
+import TodoStatusBadge from "../atoms/TodoStatusBadge";
 
 interface Todo {
   id: string;
@@ -176,7 +179,6 @@ export default function TodoComponent() {
               <TableHead className="w-[250px]">Task ID</TableHead>
               <TableHead className="w-[300px]">Title</TableHead>
               <TableHead className="w-[150px]">Status</TableHead>
-              {/* <TableHead>GitHub</TableHead> */}
               <TableHead className="w-[50px] text-right">Edit</TableHead>
               <TableHead className="w-[50px] text-center">Done</TableHead>
               <TableHead className="w-[50px] text-right">Delete</TableHead>
@@ -193,31 +195,11 @@ export default function TodoComponent() {
                     <TableCell className="font-medium">{id}</TableCell>
 
                     <TableCell className="text-left">
-                      <div className="flex flex-row justify-start items-center">
-                        <HoverCard>
-                          <HoverCardTrigger>
-                            <Button className="m-0 p-0" variant={"link"}>
-                              {title
-                                ? `${title.slice(0, 20)} ${title.length > 20 ? "..." : ""}`
-                                : ""}
-                            </Button>
-                          </HoverCardTrigger>
-                          <HoverCardContent>
-                            <TodoDescription
-                              title={title}
-                              description={description}
-                              gh_issue_id={gh_issue_id}
-                              createdAt={createdAt}
-                            />
-                          </HoverCardContent>
-                        </HoverCard>
-                      </div>
+                      <TodoTitle title={title} description={description} createdAt={createdAt} gh_issue_id={gh_issue_id} />
                     </TableCell>
 
                     <TableCell>
-                      <Badge variant={done ? "outline" : "default"}>
-                        {done ? "Done" : "Todo"}
-                      </Badge>
+                      <TodoStatusBadge done={done} />
                     </TableCell>
 
                     <TableCell className="text-center">

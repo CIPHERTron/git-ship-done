@@ -9,9 +9,6 @@ import {
   TableRow,
 } from "~/components/ui/table";
 
-import { useToast } from "~/components/ui/use-toast";
-import { TrashIcon } from "@radix-ui/react-icons";
-
 import { useReplicache } from "~/hooks/useReplicache";
 import { useSubscribe } from "replicache-react";
 import {
@@ -20,13 +17,13 @@ import {
   ReadonlyJSONValue,
 } from "replicache";
 
-import { Button } from "../ui/button";
 import { sortTodosByCreatedAt } from "~/utils/dateUtils";
 
 import CreateTodo from "../atoms/AddTodo";
 import TodoTitle from "../atoms/TodoTitle";
 import TodoStatusBadge from "../atoms/TodoStatusBadge";
 import EditTodo from "../atoms/EditTodo";
+import TrashTodo from "../atoms/TrashTodo";
 import TransitionTodo from "../atoms/TransitionTodo";
 
 interface Todo {
@@ -46,7 +43,6 @@ interface TodoWrapper {
 
 export default function TodoComponent() {
   const rep = useReplicache();
-  const { toast } = useToast();
 
   function normalizeReplicacheData(
     data: (readonly [string, ReadonlyJSONValue])[]
@@ -92,18 +88,6 @@ export default function TodoComponent() {
   const sortedTodos = sortTodosByCreatedAt(todos);
 
   console.log(sortedTodos);
-
-  const handleDeleteTodo = async (event: React.FormEvent, id: string) => {
-    event.preventDefault();
-
-    await rep?.mutate.deleteTodo({
-      id,
-    });
-
-    toast({
-      description: `Todo with id ${id} was deleted.}`,
-    });
-  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
@@ -161,12 +145,7 @@ export default function TodoComponent() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Button
-                        onClick={(e) => handleDeleteTodo(e, id)}
-                        variant="destructive"
-                      >
-                        <TrashIcon />
-                      </Button>
+                      <TrashTodo rep={rep} id={id} />
                     </TableCell>
                   </TableRow>
                 )

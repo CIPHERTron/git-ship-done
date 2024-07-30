@@ -8,23 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "~/components/ui/dialog";
 import { Label } from "~/components/ui/label";
 
 import { Badge } from "~/components/ui/badge";
@@ -34,19 +17,18 @@ import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
 
 import { useReplicache } from "~/hooks/useReplicache";
 import { useSubscribe } from "replicache-react";
-import { nanoid } from "nanoid";
 import {
   ReadTransaction,
   ReadonlyJSONObject,
   ReadonlyJSONValue,
 } from "replicache";
-import TodoDescription from "~/components/TodoDescription";
+import TodoDescription from "~/components/atoms/TodoDescription";
 import {
   HoverCard,
   HoverCardTrigger,
   HoverCardContent,
 } from "@radix-ui/react-hover-card";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { sortTodosByCreatedAt } from "~/utils/dateUtils";
 import {
   Popover,
@@ -59,7 +41,8 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
-} from "./ui/card";
+} from "../ui/card";
+import CreateTodo from "../atoms/AddTodo";
 
 interface Todo {
   id: string;
@@ -79,9 +62,6 @@ interface TodoWrapper {
 export default function TodoComponent() {
   const rep = useReplicache();
   const { toast } = useToast();
-  const [newTodoTitle, setNewTodoTitle] = useState<string>("");
-  const [newTodoDescription, setNewTodoDescription] = useState<string>("");
-  const [open, setOpen] = useState<boolean>(false);
   const [updatedTitle, setUpdatedTitle] = useState<string>("");
   const [updatedDescription, setUpdatedDescription] = useState<string>("");
 
@@ -130,31 +110,6 @@ export default function TodoComponent() {
 
   console.log(sortedTodos);
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!newTodoTitle || !newTodoDescription) {
-      alert("Please fill in both title and description");
-      return;
-    }
-
-    await rep?.mutate.createTodo({
-      id: nanoid(),
-      title: newTodoTitle,
-      description: newTodoDescription,
-      gh_issue_id: null,
-      createdAt: new Date().toISOString(),
-    });
-
-    setOpen(false);
-
-    toast({
-      description: "New todo created successfully.",
-    });
-
-    setNewTodoTitle("");
-    setNewTodoDescription("");
-  };
 
   const handleUpdateSubmit = async (event: React.FormEvent, id: string) => {
     event.preventDefault();
@@ -209,79 +164,7 @@ export default function TodoComponent() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="my-4 w-[1014px] flex flex-row justify-between">
-        <div className="flex flex-row gap-2">
-          <Input type="text" placeholder="Filter Todos..." />
-          <Select>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="todo">Todo</SelectItem>
-              <SelectItem value="done">Done</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Dialog open={open}>
-            <DialogTrigger asChild>
-              <Button variant="default" onClick={() => setOpen(true)}>
-                {" "}
-                <PlusCircledIcon className="mr-2 h-4 w-4" /> Create Todo
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Create Todo</DialogTitle>
-                <DialogDescription>
-                  Add the title & description and hit "Create"
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="name" className="text-right">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    value={newTodoTitle}
-                    onChange={(e) => setNewTodoTitle(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="username" className="text-right">
-                    Description
-                  </Label>
-                  <Input
-                    id="description"
-                    value={newTodoDescription}
-                    onChange={(e) => setNewTodoDescription(e.target.value)}
-                    className="col-span-3"
-                  />
-                </div>
-              </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <div className="flex flex-row items-center gap-4">
-                    <Button type="submit" onClick={handleSubmit}>
-                      Create
-                    </Button>
-                    <Button
-                      variant={"outline"}
-                      type="submit"
-                      onClick={() => setOpen(false)}
-                    >
-                      Close
-                    </Button>
-                  </div>
-                </DialogClose>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
+      <CreateTodo rep={rep} />
 
       <div className="w-fit rounded-lg border">
         <Table>

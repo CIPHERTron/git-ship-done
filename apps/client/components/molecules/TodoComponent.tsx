@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Table,
   TableBody,
@@ -8,12 +8,9 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Label } from "~/components/ui/label";
 
-import { Badge } from "~/components/ui/badge";
-import { Input } from "~/components/ui/input";
 import { useToast } from "~/components/ui/use-toast";
-import { TrashIcon, PlusCircledIcon, Pencil1Icon } from "@radix-ui/react-icons";
+import { TrashIcon } from "@radix-ui/react-icons";
 
 import { useReplicache } from "~/hooks/useReplicache";
 import { useSubscribe } from "replicache-react";
@@ -22,30 +19,14 @@ import {
   ReadonlyJSONObject,
   ReadonlyJSONValue,
 } from "replicache";
-import TodoDescription from "~/components/atoms/TodoDescription";
-import {
-  HoverCard,
-  HoverCardTrigger,
-  HoverCardContent,
-} from "@radix-ui/react-hover-card";
+
 import { Button } from "../ui/button";
 import { sortTodosByCreatedAt } from "~/utils/dateUtils";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@radix-ui/react-popover";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-  CardFooter,
-} from "../ui/card";
 
 import CreateTodo from "../atoms/AddTodo";
 import TodoTitle from "../atoms/TodoTitle";
 import TodoStatusBadge from "../atoms/TodoStatusBadge";
+import EditTodo from "../atoms/EditTodo";
 
 interface Todo {
   id: string;
@@ -65,8 +46,6 @@ interface TodoWrapper {
 export default function TodoComponent() {
   const rep = useReplicache();
   const { toast } = useToast();
-  const [updatedTitle, setUpdatedTitle] = useState<string>("");
-  const [updatedDescription, setUpdatedDescription] = useState<string>("");
 
   function normalizeReplicacheData(
     data: (readonly [string, ReadonlyJSONValue])[]
@@ -113,28 +92,6 @@ export default function TodoComponent() {
 
   console.log(sortedTodos);
 
-
-  const handleUpdateSubmit = async (event: React.FormEvent, id: string) => {
-    event.preventDefault();
-
-    if (!updatedTitle || !updatedDescription) {
-      alert("Nothing has changed!!");
-      return;
-    }
-
-    await rep?.mutate.updateTodo({
-      id,
-      title: updatedTitle,
-      description: updatedDescription,
-    });
-
-    toast({
-      description: "Todo updated successfully.",
-    });
-
-    setUpdatedTitle("");
-    setUpdatedDescription("");
-  };
 
   const handleTodoDone = async (
     event: React.FormEvent,
@@ -203,59 +160,7 @@ export default function TodoComponent() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button variant="outline">
-                            <Pencil1Icon />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-fit">
-                          <Card className="w-[350px]">
-                            <CardHeader>
-                              <CardTitle>Edit Todo</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <form>
-                                <div className="grid w-full items-center gap-4">
-                                  <div className="flex flex-col space-y-1.5">
-                                    <Label htmlFor="name">Title</Label>
-                                    <Input
-                                      id="title"
-                                      value={
-                                        updatedTitle ? updatedTitle : title
-                                      }
-                                      onChange={(e) =>
-                                        setUpdatedTitle(e.target.value)
-                                      }
-                                    />
-                                  </div>
-                                  <div className="flex flex-col space-y-1.5">
-                                    <Label htmlFor="name">Description</Label>
-                                    <Input
-                                      id="description"
-                                      value={
-                                        updatedDescription
-                                          ? updatedDescription
-                                          : description
-                                      }
-                                      onChange={(e) =>
-                                        setUpdatedDescription(e.target.value)
-                                      }
-                                    />
-                                  </div>
-                                </div>
-                              </form>
-                            </CardContent>
-                            <CardFooter className="flex justify-end">
-                              <Button
-                                onClick={(e) => handleUpdateSubmit(e, id)}
-                              >
-                                Update
-                              </Button>
-                            </CardFooter>
-                          </Card>
-                        </PopoverContent>
-                      </Popover>
+                      <EditTodo rep={rep} id={id} title={title} description={description} />
                     </TableCell>
 
                     <TableCell className="text-center">

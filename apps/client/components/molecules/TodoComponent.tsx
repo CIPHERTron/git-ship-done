@@ -27,6 +27,7 @@ import CreateTodo from "../atoms/AddTodo";
 import TodoTitle from "../atoms/TodoTitle";
 import TodoStatusBadge from "../atoms/TodoStatusBadge";
 import EditTodo from "../atoms/EditTodo";
+import TransitionTodo from "../atoms/TransitionTodo";
 
 interface Todo {
   id: string;
@@ -92,23 +93,6 @@ export default function TodoComponent() {
 
   console.log(sortedTodos);
 
-  const handleTodoDone = async (
-    event: React.FormEvent,
-    id: string,
-    done: boolean
-  ) => {
-    event.preventDefault();
-
-    await rep?.mutate.doneTodo({
-      id,
-      done: !done,
-    });
-
-    toast({
-      description: `Todo with id ${id} was transitioned to ${!done ? "Done" : "Open"}`,
-    });
-  };
-
   const handleDeleteTodo = async (event: React.FormEvent, id: string) => {
     event.preventDefault();
 
@@ -173,12 +157,7 @@ export default function TodoComponent() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Button
-                        onClick={(e) => handleTodoDone(e, id, done)}
-                        variant="link"
-                      >
-                        {done ? "Reopen Todo" : "Mark as Done"}
-                      </Button>
+                      <TransitionTodo rep={rep} id={id} done={done} />
                     </TableCell>
 
                     <TableCell className="text-center">

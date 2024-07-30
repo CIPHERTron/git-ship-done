@@ -92,7 +92,6 @@ export default function TodoComponent() {
 
   console.log(sortedTodos);
 
-
   const handleTodoDone = async (
     event: React.FormEvent,
     id: string,
@@ -152,7 +151,12 @@ export default function TodoComponent() {
                     <TableCell className="font-medium">{id}</TableCell>
 
                     <TableCell className="text-left">
-                      <TodoTitle title={title} description={description} createdAt={createdAt} gh_issue_id={gh_issue_id} />
+                      <TodoTitle
+                        title={title}
+                        description={description}
+                        createdAt={createdAt}
+                        gh_issue_id={gh_issue_id}
+                      />
                     </TableCell>
 
                     <TableCell>
@@ -160,7 +164,12 @@ export default function TodoComponent() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <EditTodo rep={rep} id={id} title={title} description={description} />
+                      <EditTodo
+                        rep={rep}
+                        id={id}
+                        title={title}
+                        description={description}
+                      />
                     </TableCell>
 
                     <TableCell className="text-center">

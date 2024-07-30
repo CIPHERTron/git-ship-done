@@ -11,11 +11,7 @@ import {
 
 import { useReplicache } from "~/hooks/useReplicache";
 import { useSubscribe } from "replicache-react";
-import {
-  ReadTransaction,
-  ReadonlyJSONObject,
-  ReadonlyJSONValue,
-} from "replicache";
+import { ReadTransaction } from "replicache";
 
 import { sortTodosByCreatedAt } from "~/utils/dateUtils";
 
@@ -25,45 +21,10 @@ import TodoStatusBadge from "../atoms/TodoStatusBadge";
 import EditTodo from "../atoms/EditTodo";
 import TrashTodo from "../atoms/TrashTodo";
 import TransitionTodo from "../atoms/TransitionTodo";
-
-interface Todo {
-  id: string;
-  title: string;
-  description: string;
-  done: boolean;
-  gh_issue_id: number | null;
-  createdAt: string;
-}
-
-interface TodoWrapper {
-  value: {
-    args: Todo;
-  };
-}
+import { normalizeReplicacheData } from "~/utils/replicacheUtils";
 
 export default function TodoComponent() {
   const rep = useReplicache();
-
-  function normalizeReplicacheData(
-    data: (readonly [string, ReadonlyJSONValue])[]
-  ): Todo[] {
-    const todosArr = data.map(([, value]) => {
-      if (typeof value === "object" && value !== null && "value" in value) {
-        const wrappedValue = value as ReadonlyJSONObject;
-        if (
-          "value" in wrappedValue &&
-          typeof wrappedValue.value === "object" &&
-          wrappedValue.value !== null &&
-          "args" in wrappedValue.value
-        ) {
-          return (wrappedValue as unknown as TodoWrapper).value.args;
-        }
-      }
-      return value as unknown as Todo;
-    });
-
-    return todosArr;
-  }
 
   const getallTodos = async ({ tx }: { tx: ReadTransaction }) => {
     const _todos = await tx

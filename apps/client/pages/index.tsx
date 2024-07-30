@@ -1,5 +1,5 @@
 import React from "react";
-import TodoComponent from "~/components/TodoComponent";
+import TodoComponent from "~/components/molecules/TodoComponent";
 
 const App: React.FC = () => {
   return (
